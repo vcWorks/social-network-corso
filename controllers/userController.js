@@ -6,15 +6,19 @@ exports.login = function(req, res) {
         req.session.user = {
             username: user.data.username
         }
-        res.send(result);
+        req.session.save(function() {
+            res.redirect('/');
+        });
     }).catch(function(err) {
         res.send(err);
     });
 }
 
 
-exports.logout = function() {
-
+exports.logout = function(req, res) {
+    req.session.destroy(function() {
+        res.redirect('/');
+    })
 }
 
 
