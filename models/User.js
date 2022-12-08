@@ -26,34 +26,47 @@ User.prototype.cleanUp = function() {
 }
 
 User.prototype.validate = function() {
-    //username
-    if(this.data.username == '') {
-        this.errors.push("Devi inserire un username.");
-    }else {
-        if(!validator.isAlphanumeric(this.data.username)) {
-            this.errors.push("L'username può contenere solo lettere e numeri");
+    return new Promise(async (resolve, reject) => {
+            //username
+            if(this.data.username == '') {
+                this.errors.push("Devi inserire un username.");
+            }else {
+                if(!validator.isAlphanumeric(this.data.username)) {
+                    this.errors.push("L'username può contenere solo lettere e numeri");
+                }
+                if(this.data.username.length > 0 && this.data.username.length < 3) {
+                    this.errors.push("username minima da 3 caratteri");
+                } else if(this.data.username.length > 30) {
+                    this.errors.push("Username troppo lunga, max 30 caratteri");
+                }
+                if(this.data.username.length > 2 && this.data.username.length < 31 && validator.isAlphanumeric(this.data.username)) {
+                    let usernameExists = await usersCollection.findOne({username: this.data.username});
+                    if(usernameExists){
+                        this.errors.push("username già utilizzato");
+                    }
+                }
+            }
+            //mail
+            if(!validator.isEmail(this.data.email)) {
+                this.errors.push("Devi inserire una email valida.");
+            } else {
+                let emailExists = await usersCollection.findOne({email: this.data.email});
+                if(emailExists){
+                    this.errors.push("email già utilizzata");
+                }
+            }
+            //password
+            if(this.data.password == '') {
+                this.errors.push("Devi inserire una password.");
+            }else if(this.data.password.length > 0 && this.data.password.length < 12) {
+                this.errors.push("Password minima da 12 caratteri");
+            } else if(this.data.password.length > 50) {
+                this.errors.push("Password troppo lunga, max 50 caratteri");
+            }
+            resolve();
         }
-        if(this.data.username.length > 0 && this.data.username.length < 3) {
-            this.errors.push("username minima da 3 caratteri");
-        } else if(this.data.username.length > 30) {
-            this.errors.push("Username troppo lunga, max 30 caratteri");
-        }
-    }
-    //mail
-    if(!validator.isEmail(this.data.email)) {
-        this.errors.push("Devi inserire una email valida.");
-    }
-    //password
-    if(this.data.password == '') {
-        this.errors.push("Devi inserire una password.");
-    }else if(this.data.password.length > 0 && this.data.password.length < 12) {
-        this.errors.push("Password minima da 12 caratteri");
-    } else if(this.data.password.length > 50) {
-        this.errors.push("Password troppo lunga, max 50 caratteri");
-    }
-
+    )
 }
-
 User.prototype.login = function() {
     return new Promise((resolve, reject) => {
         this.cleanUp();
@@ -70,18 +83,24 @@ User.prototype.login = function() {
 }
 
 User.prototype.register = function() {
-    // Step 1: Validazione dati
-    this.cleanUp();
-    this.validate();
-
-    // Step 2: nel caso in cui non ci siano errori salviamo i dati nel DB
-    if(!this.errors.length) {
-        //hash password dell'utente
-        let salt = bcrypt.genSaltSync(10);
-        this.data.password = bcrypt.hashSync(this.data.password, salt);
-        usersCollection.insertOne(this.data);
-    }
-
+    return new Promise(async (resolve, reject) => {
+            // Step 1: Validazione dati
+            this.cleanUp();
+            await this.validate();
+        
+            // Step 2: nel caso in cui non ci siano errori salviamo i dati nel DB
+            if(!this.errors.length) {
+                //hash password dell'utente
+                let salt = bcrypt.genSaltSync(10);
+                this.data.password = bcrypt.hashSync(this.data.password, salt);
+                await usersCollection.insertOne(this.data);
+                resolve();
+            } else {
+                reject(this.errors);
+            }
+        
+        }
+    )
 }
 
 
