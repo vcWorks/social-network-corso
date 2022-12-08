@@ -1,6 +1,7 @@
 const express = require('express');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
+const flash = require('connect-flash');
 const app = express();
 
 // configurazione della sessione
@@ -18,6 +19,8 @@ let sessionOptions = session({
 });
 //express adesso utilizza la sessione
 app.use(sessionOptions);
+//messaggi in pagina - chiamati anche messaggi flash
+app.use(flash());
 
 const router = require("./router");
 
