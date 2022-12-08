@@ -1,5 +1,6 @@
 const usersCollection = require("../db").collection("users");
 const validator = require("validator");
+const bcrypt = require("bcryptjs");
 let User = function(data) {
     this.data = data;
     this.errors = [];
@@ -47,8 +48,8 @@ User.prototype.validate = function() {
         this.errors.push("Devi inserire una password.");
     }else if(this.data.password.length > 0 && this.data.password.length < 12) {
         this.errors.push("Password minima da 12 caratteri");
-    } else if(this.data.password.length > 100) {
-        this.errors.push("Password troppo lunga, max 100 caratteri");
+    } else if(this.data.password.length > 50) {
+        this.errors.push("Password troppo lunga, max 50 caratteri");
     }
 
 }
@@ -57,7 +58,7 @@ User.prototype.login = function() {
     return new Promise((resolve, reject) => {
         this.cleanUp();
         usersCollection.findOne({username: this.data.username}).then((attemptedUser) => {
-            if(attemptedUser && attemptedUser.password == this.data.password) {
+            if(attemptedUser && bcrypt.compareSync(this.data.password, attemptedUser.password)) {
                 resolve("ottimo!");
             } else {
                 reject("dati scorretti");
@@ -75,6 +76,9 @@ User.prototype.register = function() {
 
     // Step 2: nel caso in cui non ci siano errori salviamo i dati nel DB
     if(!this.errors.length) {
+        //hash password dell'utente
+        let salt = bcrypt.genSaltSync(10);
+        this.data.password = bcrypt.hashSync(this.data.password, salt);
         usersCollection.insertOne(this.data);
     }
 
