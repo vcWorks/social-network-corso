@@ -20,6 +20,6 @@ exports.viewSingle = async function(req, res) {
             post: post
         });
     } catch {
-        res.send("qua gestiremo l'errore");
+        res.render('404');
     }
 }
