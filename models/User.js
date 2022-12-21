@@ -4,9 +4,12 @@ const bcrypt = require("bcryptjs");
 const md5 = require("md5");
 
 class User {
-    constructor(data) {
+    constructor(data, getAvatar = false) {
         this.data = data;
         this.errors = [];
+        if(getAvatar) {
+            this.getAvatar();
+        }
     }
 
     cleanUp() {

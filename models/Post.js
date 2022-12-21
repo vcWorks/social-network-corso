@@ -1,5 +1,7 @@
 const postsCollection = require("../db").db().collection("posts");
+const User = require("./User");
 const ObjectId = require("mongodb").ObjectId;
+
 
 class Post {
     constructor(data, userId) {
@@ -58,11 +60,43 @@ Post.findSingleById = function(id) {
             reject();
             return;
         }
-        let post = await postsCollection.findOne({
-            _id: new ObjectId(id)
+        let posts = await postsCollection.aggregate([
+            {
+                $match: {
+                    _id: new ObjectId(id)
+                }
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "author",
+                    foreignField: "_id",
+                    as: "authorDocument"
+                }
+            },
+            {
+                $project: {
+                    title: 1,
+                    body: 1,
+                    createdDate: 1,
+                    author: {
+                        $arrayElemAt: ["$authorDocument", 0]
+                    }
+                }
+            }
+        ]).toArray();
+
+        // pulizia delle informazioni dell'autore legate ai post
+        posts = posts.map(function(post) {
+            post.author = {
+                username: post.author.username,
+                avatar: new User(post.author, true).avatar
+            };
+            return post;
         });
-        if(post) {
-            resolve(post);
+        if(posts.length) {
+            console.log(posts[0]);
+            resolve(posts[0]);
         } else {
             reject();
         }
