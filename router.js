@@ -12,6 +12,10 @@ router.post('/login', userController.login);
 router.post('/logout', userController.logout);
 
 
+// profile rotte
+router.get('/profile/:username', userController.ifUserExist, userController.profilePostsScreen);
+
+
 // post rotte
 
 router.get('/create-post', userController.mustBeLoggedIn, postController.viewCreateScreen);
