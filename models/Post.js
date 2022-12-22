@@ -41,8 +41,8 @@ class Post {
             this.validate();
             if(!this.errors.length) {
                 // salvataggio post
-                postsCollection.insertOne(this.data).then(() => {
-                    resolve();
+                postsCollection.insertOne(this.data).then((info) => {
+                    resolve(info.insertedId);
                 }).catch(() => {
                     this.errors.push("errore nel salvataggio dei dati");
                     reject(this.errors);

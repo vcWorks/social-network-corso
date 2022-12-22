@@ -6,10 +6,13 @@ exports.viewCreateScreen = function(req, res) {
 
 exports.create = function(req, res) {
     let post = new Post(req.body, req.session.user._id);
-    post.create().then(function() {
-        res.send("creato nuovo post");
+    post.create().then(function(newId) {
+        req.flash("success", "Creato il post!");
+        req.session.save( () => res.redirect(`/post/${newId}`));
     }).catch(function(errors) {
-        res.send(errors);
+        //sto implementando una arrow function con singolo parametro. così posso non mettere parentesi tonde e graffe
+        errors.forEach( error => req.flash("errors", error));
+        req.session.save( () => res.redirect("/create-post"));
     });
 }
 
