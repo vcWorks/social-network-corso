@@ -30,8 +30,8 @@ exports.viewSingle = async function(req, res) {
 
 exports.viewEditScreen = async function(req, res) {
     try {
-        let post = await Post.findSingleById(req.params.id);
-        if(post.authorId == req.visitorId) {
+        let post = await Post.findSingleById(req.params.id, req.visitorId);
+        if(post.isVisitorOwner) {
             res.render("edit-post", {
                 post: post
             });
@@ -72,5 +72,17 @@ exports.edit = async function(req, res) {
         req.session.save(() => {
             res.redirect("/");
         });
+    });
+}
+
+exports.delete = async function(req, res) {
+    Post.delete(req.params.id, req.visitorId).then(() => {
+        req.flash("success", "Post cancellato correttamente.");
+        req.session.save(() => {
+            res.redirect(`/profile/${req.session.user.username}`);
+        });
+    }).catch(() => {
+        req.flash("errors", "Non hai i permessi per cancellare il post.");
+        req.session.save( () => res.redirect("/"));
     });
 }

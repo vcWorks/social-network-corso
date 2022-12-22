@@ -60,7 +60,7 @@ class Post {
                 let post = await Post.findSingleById(this.requestedPPostId, this.userId);
                 if(post.isVisitorOwner) {
                     let status = await this.actuallyUpdate();
-                    resolve(status)
+                    resolve(status);
                 } else {
                     reject();
                 }
@@ -170,6 +170,25 @@ Post.findByAuthorId = function(authorId) {
             }
         }
     ]);
+}
+
+
+Post.delete = function(postIdToDelete, currentUserId) {
+    return new Promise( async (resolve, reject) => {
+        try {
+            let post = await Post.findSingleById(postIdToDelete, currentUserId);
+            if(post.isVisitorOwner) {
+                await postsCollection.deleteOne( {
+                    _id: new ObjectId(postIdToDelete)
+                });
+                resolve();
+            } else {
+                reject();
+            }
+        } catch {
+            reject();
+        }
+    });
 }
 
 module.exports = Post;
