@@ -23,6 +23,14 @@ app.use(sessionOptions);
 app.use(flash());
 
 app.use(function(req, res, next) {
+    //qua rendiamo disponibili le informazioni dell'untente nell'oggetto req
+    if(req.session.user) {
+        req.visitorId = req.session.user._id;
+    }  else {
+        req.visitorId = 0;
+    }
+
+    // qua rendiamo le informazioni di sessione dell'utente disponibili
     res.locals.user = req.session.user;
     next();
 });
