@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "watch": "nodemon db --ignore frontend-js --ignore public/ & webpack --watch",
+    "watch": "concurrently \"nodemon db --ignore frontend-js --ignore public\"  \"webpack --watch\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -15,6 +15,7 @@
     "@babel/preset-env": "^7.20.2",
     "babel-loader": "^9.1.0",
     "bcryptjs": "^2.4.3",
+    "concurrently": "^7.6.0",
     "connect-flash": "^0.1.1",
     "connect-mongo": "^4.6.0",
     "dotenv": "^16.0.3",
