@@ -28,9 +28,14 @@ exports.viewSingle = async function(req, res) {
 exports.viewEditScreen = async function(req, res) {
     try {
         let post = await Post.findSingleById(req.params.id);
-        res.render("edit-post", {
-            post: post
-        });
+        if(post.authorId == req.visitorId) {
+            res.render("edit-post", {
+                post: post
+            });
+        } else {
+            req.flash("errors", "non hai i permessi per visualizzare il post");
+            req.session.save( () => res.redirect("/"));
+        }
     } catch {
         res.render('404');
     }
