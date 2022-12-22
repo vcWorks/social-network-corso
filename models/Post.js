@@ -4,10 +4,11 @@ const ObjectId = require("mongodb").ObjectId;
 
 
 class Post {
-    constructor(data, userId) {
+    constructor(data, userId, requestedPPostId) {
         this.data = data;
         this.userId = userId;
         this.errors = [];
+        this.requestedPPostId = requestedPPostId;
     }
 
     cleanUp() {
@@ -25,6 +26,7 @@ class Post {
             author: ObjectId(this.userId)
         }
     }
+
     validate() {
         if(this.data.title == "") {
             this.errors.push("titolo obbligatorio");
@@ -50,6 +52,43 @@ class Post {
             }
         });
         
+    }
+
+    update() {
+        return new Promise( async (resolve, reject) => {
+            try {
+                let post = await Post.findSingleById(this.requestedPPostId, this.userId);
+                if(post.isVisitorOwner) {
+                    let status = await this.actuallyUpdate();
+                    resolve(status)
+                } else {
+                    reject();
+                }
+            } catch {
+                reject();
+            }
+        });
+    }
+
+    actuallyUpdate() {
+        return new Promise( async (resolve, reject) => {
+            this.cleanUp();
+            this.validate();
+            if(!this.errors.length) {
+                await postsCollection.findOneAndUpdate({
+                    _id: new ObjectId(this.requestedPPostId)
+                },
+                {
+                    $set: {
+                        title: this.data.title,
+                        body: this.data.body
+                    }
+                });
+                resolve("success")
+            } else {
+                resikve("failure")
+            }
+        }); 
     }
 
 }

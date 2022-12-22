@@ -23,6 +23,10 @@ app.use(sessionOptions);
 app.use(flash());
 
 app.use(function(req, res, next) {
+    //rendiamo disponibili tutti i messaggi flash base disponibili per ogni template, così da non richiamarli ogni volta che si fa render
+    res.locals.errors = req.flash('errors');
+    res.locals.success = req.flash('success');
+
     //qua rendiamo disponibili le informazioni dell'untente nell'oggetto req
     if(req.session.user) {
         req.visitorId = req.session.user._id;
