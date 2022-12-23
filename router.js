@@ -15,6 +15,8 @@ router.post('/logout', userController.logout);
 
 // profile rotte
 router.get('/profile/:username', userController.ifUserExist, userController.sharedProfileData, userController.profilePostsScreen);
+router.get('/profile/:username/followers', userController.ifUserExist, userController.sharedProfileData, userController.profileFollowersScreen);
+router.get('/profile/:username/following', userController.ifUserExist, userController.sharedProfileData, userController.profileFollowingScreen);
 
 
 // post rotte
