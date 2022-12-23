@@ -93,7 +93,7 @@ class Post {
 
 }
 
-Post.reusablePostQuery = function(uniqueOperations, visitorId) {
+Post.reusablePostQuery = function(uniqueOperations, visitorId, finalOperations = []) {
     return new Promise(async function(resolve, reject) {
         let aggOperations = uniqueOperations.concat(
             [
@@ -117,12 +117,13 @@ Post.reusablePostQuery = function(uniqueOperations, visitorId) {
                     }
                 }
             ]
-        );
+        ).concat(finalOperations);
         let posts = await postsCollection.aggregate(aggOperations).toArray();
 
         // pulizia delle informazioni dell'autore legate ai post
         posts = posts.map(function(post) {
             post.isVisitorOwner = post.authorId.equals(visitorId);
+            post.authorId = undefined;
             post.author = {
                 username: post.author.username,
                 avatar: new User(post.author, true).avatar
@@ -182,6 +183,33 @@ Post.delete = function(postIdToDelete, currentUserId) {
                     _id: new ObjectId(postIdToDelete)
                 });
                 resolve();
+            } else {
+                reject();
+            }
+        } catch {
+            reject();
+        }
+    });
+}
+
+Post.search = function(searchTerm) {
+    return new Promise( async (resolve, reject) => {
+        try {
+            if(typeof(searchTerm) == "string") {
+                let posts = await Post.reusablePostQuery([
+                    {
+                        $match: {
+                            $text: {$search: searchTerm}
+                        }
+                    }
+                ], undefined, [
+                    {
+                        $sort: {$score: {
+                            $meta: "textScore"}
+                        }
+                    }
+                ]);
+                resolve(posts);
             } else {
                 reject();
             }
