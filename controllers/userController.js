@@ -109,6 +109,7 @@ exports.profilePostsScreen = function(req, res) {
     //ci facciamo resitituire dal file model per i post quelli filtratri per user
     Post.findByAuthorId(req.profileUser._id).then(function(posts) {
         res.render('profile', {
+            title: req.profileUser.username,
             currentPage: "posts",
             posts: posts,
             profileUsername: req.profileUser.username,
