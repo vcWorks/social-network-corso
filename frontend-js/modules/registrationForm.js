@@ -2,6 +2,7 @@ import axios from "axios";
 
 class RegistrationForm {
     constructor() {
+        this._csrf = document.querySelector('[name="_csrf"]').value;
         this.form = document.querySelector(" #registration-form");
         this.allFields = document.querySelectorAll("#registration-form .form-control");
         this.insertValidationElements();
@@ -74,7 +75,7 @@ class RegistrationForm {
             this.showValidationError(this.username, "username troppo corto");
         }
         if(!this.username.errors) {
-            axios.post("/doesUsernameExist", {username: this.username.value}).then( (response) => {
+            axios.post("/doesUsernameExist", {_csrf: this._csrf, username: this.username.value}).then( (response) => {
                 if(response.data) {
                     this.showValidationError(this.username, "già preso sto username");
                     this.username.isUnique = false;
@@ -99,7 +100,7 @@ class RegistrationForm {
         }
 
         if(!this.email.errors) {
-            axios.post("/doesEmailExist", {email: this.email.value}).then( (response) => {
+            axios.post("/doesEmailExist", {_csrf: this._csrf, email: this.email.value}).then( (response) => {
                 if(response.data) {
                     this.showValidationError(this.email, "già presa sta email");
                     this.email.isUnique = false;

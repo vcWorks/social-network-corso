@@ -3,6 +3,7 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const flash = require('connect-flash');
 const markdown = require('marked');
+const csrf = require('csurf');
 const app = express();
 const sanitizeHTML = require("sanitize-html");
 
@@ -58,8 +59,24 @@ app.use(express.static('public'));
 app.set('views', 'views'); // il primo parametro è obbligatorio views perché parola proprietaria di express; il secondo paremetro è il nome della cartella che abbiamo creato
 app.set('view engine', 'ejs');
 
+app.use(csrf());
+app.use(function(req, res, next) {
+    res.locals.csrfToken = req.csrfToken();
+    next();
+});
 
 app.use('/', router);
+
+app.use(function(err, req, res, next) {
+    if(err) {
+       if(err.code == "EBADCSRFTOKEN") {
+            req.flash("errors", "Errore maligno csrf");
+            req.session.save( () => res.redirect("/"));
+       } else {
+            res.render("404");
+       } 
+    }
+});
 
 const server = require('http').createServer(app);
 const io = require("socket.io")(server);

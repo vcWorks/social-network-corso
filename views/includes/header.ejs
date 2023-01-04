@@ -29,9 +29,10 @@
                         <a href="/profile/<%= user.username %>" class="mr-2"><img title="My Profile" data-toggle="tooltip" data-placement="bottom"
                                 style="width: 32px; height: 32px; border-radius: 16px;"
                                 src="<%= user.avatar %>"></a>
-                        <a class="btn btn-sm btn-success mr-2" href="/create-post">Create Post</a>
+                        <a class="btn btn-sm btn-success mr-2" href="/create-post">Crea un Post</a>
                         <form action="/logout" method="POST" class="d-inline">
-                            <button class="btn btn-sm btn-secondary">Sign Out</button>
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                            <button class="btn btn-sm btn-secondary">Esci</button>
                         </form>
                     </div>
                 <% } else { %>
@@ -46,7 +47,8 @@
                                     placeholder="Password">
                             </div>
                             <div class="col-md-auto">
-                                <button class="btn btn-primary btn-sm">Sign In</button>
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                <button class="btn btn-primary btn-sm">Entra</button>
                             </div>
                         </div>
                     </form>
