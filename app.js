@@ -7,6 +7,10 @@ const csrf = require('csurf');
 const app = express();
 const sanitizeHTML = require("sanitize-html");
 
+app.use(express.urlencoded({extended: false}));
+app.use(express.json());
+app.use("/api", require("./router-api"));
+
 // configurazione della sessione
 let sessionOptions = session({
     secret: "Brad è molto polite",
@@ -51,9 +55,6 @@ app.use(function(req, res, next) {
 });
 
 const router = require("./router");
-
-app.use(express.urlencoded({extended: false}));
-app.use(express.json());
 
 app.use(express.static('public'));
 app.set('views', 'views'); // il primo parametro è obbligatorio views perché parola proprietaria di express; il secondo paremetro è il nome della cartella che abbiamo creato

@@ -1,6 +1,7 @@
 const Post = require('../models/Post');
 const User = require('../models/User');
 const Follow = require('../models/Follow');
+const jwt = require("jsonwebtoken");
 
 exports.doesUsernameExist = async function(req, res) {
     User.findByUsername(req.body.username).then(function() {
@@ -46,6 +47,34 @@ exports.mustBeLoggedIn = function(req, res, next) {
             res.redirect('/');
         });
     }
+}
+
+exports.apiMustBeLoggedIn = function(req, res, next) {
+    try {
+        req.apiUser = jwt.verify(req.body.token, process.env.JWTSECRET);
+        next();
+    } catch {
+        res.json("token trasmesso non valido");
+    }
+}
+
+exports.apiGetPostsByUsername = async function(req, res) {
+    try {
+        let authorDoc = await User.findByUsername(req.params.username);
+        let posts = await Post.findByAuthorId(authorDoc._id);
+        res.json(posts);
+    } catch {
+        res.json("username non valido");
+    }
+}
+
+exports.apiLogin = function(req, res) {
+    let user = new User(req.body);
+    user.login().then(function(result) {
+        res.json(jwt.sign({_id: user.data._id}, process.env.JWTSECRET, {expiresIn: '30m'}));
+    }).catch(function(err) {
+        res.json("sbagliatoooooo");
+    });
 }
 
 exports.login = function(req, res) {

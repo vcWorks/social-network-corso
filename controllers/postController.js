@@ -4,6 +4,23 @@ exports.viewCreateScreen = function(req, res) {
     res.render('create-post');
 }
 
+exports.apiCreate = function(req, res) {
+    let post = new Post(req.body, req.apiUser._id);
+    post.create().then(function(newId) {
+        res.json("nuovo post aggiunto");
+    }).catch(function(errors) {
+        res.json(errors);
+    });
+}
+
+exports.apiDelete = async function(req, res) {
+    Post.delete(req.params.id, req.apiUser._id).then(() => {
+        res.json("cancellato con successo");
+    }).catch(() => {
+        res.json("non hai i permessi per questa azione");
+    });
+}
+
 exports.create = function(req, res) {
     let post = new Post(req.body, req.session.user._id);
     post.create().then(function(newId) {
