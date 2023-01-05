@@ -83,7 +83,8 @@ exports.login = function(req, res) {
         req.session.user = {
             username: user.data.username,
             avatar: user.avatar,
-            _id: user.data._id
+            _id: user.data._id,
+            email: user.data.email
         }
         req.session.save(function() {
             res.redirect('/');
@@ -110,7 +111,8 @@ exports.register = function(req, res) {
         req.session.user = {
             username: user.data.username,
             avatar: user.avatar,
-            _id: user.data._id
+            _id: user.data._id,
+            email: user.data.email
         };
         req.session.save(function() {
             res.redirect('/');
